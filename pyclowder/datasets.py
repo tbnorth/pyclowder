@@ -32,7 +32,8 @@ class DatasetsApi(object):
         mounted_paths -- dict mapping Clowder path : local path
         """
 
-        return FilesApi.add_file_to_dataset(dataset_id, filepath, mounted_paths, check_duplicate)
+        fileapi = FilesApi(self.client)
+        return fileapi.add_file_to_dataset(dataset_id, filepath, mounted_paths, check_duplicate)
 
     def add_folder(self, dataset_id, folder, parent_type, parent_id):
         """Add a folder to a dataset.

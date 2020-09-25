@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser(description='Program to create a new dataset an
 parser.add_argument('--username', '-u', type=str, default=None, help='username(email address) for Clowder')
 parser.add_argument('--password', '-p', type=str, default=None, help='password for Clowder')
 parser.add_argument('--key', '-k', type=str, default=None, help='API key for Clowder')
+parser.add_argument('--host', type=str, default=clowder_host, help='URL for Clowder')
 parser.add_argument('--folder', '-f', type=str, required=True, nargs='*', help='folders to be uploaded to Clowder')
 parser.add_argument('--rerun', '-r', type=str, required=False, help='dataset id for rerun. Adds new files.')
 parser.add_argument('--delete', '-d', required=False, action='store_true', help='use this flag to delete files on '
@@ -23,6 +24,7 @@ parser.add_argument('--delete', '-d', required=False, action='store_true', help=
 
 args = parser.parse_args()
 
+clowder_host = args.host
 if args.key is None and (args.username is None or args.password is None):
     print('Must input username/password combination or key')
     sys.exit(1)
@@ -56,8 +58,8 @@ def add_subfolder(parent_id, folder, parent_type, dataset_id):
     print("uploading files into folder: %s" % folder)
     for file in files:
         if os.path.isfile(file):
-            response = dataset_api.add_file(dataset_id, file)
-            file_id = response['id']
+            response = dataset_api.add_file_to_dataset(dataset_id, file)
+            file_id = response
             dataset_api.move_file_to_folder(dataset_id, folder_id, file_id)
         elif os.path.isdir(file):
             add_subfolder(folder_id, file, 'folder', dataset_id)
@@ -77,7 +79,7 @@ def main():
             os.chdir(start_dir)
             if os.path.isfile(folder + '/' + file):
                 os.chdir(folder)
-                dataset_api.add_file(dataset_id, file)
+                dataset_api.add_file_to_dataset(dataset_id, file)
                 os.chdir('../../..')
             else:
                 add_subfolder(dataset_id, folder + '/' + file, 'dataset', dataset_id=dataset_id)
@@ -125,7 +127,7 @@ def rerun():
                         not already_uploaded and name != ".DS_Store":
                     print('Adding new file: %s' % name)
                     os.chdir(os.path.dirname(path))
-                    response = dataset_api.add_file(args.rerun, name)
+                    response = dataset_api.add_file_to_dataset(args.rerun, name)
                     if local_folder in clowder_folders:
                         dataset_api.move_file_to_folder(args.rerun, clowder_folders[local_folder], response['id'])
 

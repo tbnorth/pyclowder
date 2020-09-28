@@ -129,7 +129,7 @@ def rerun():
                     os.chdir(os.path.dirname(path))
                     response = dataset_api.add_file_to_dataset(args.rerun, name)
                     if local_folder in clowder_folders:
-                        dataset_api.move_file_to_folder(args.rerun, clowder_folders[local_folder], response['id'])
+                        dataset_api.move_file_to_folder(args.rerun, clowder_folders[local_folder], response)
 
 
 def delete():
